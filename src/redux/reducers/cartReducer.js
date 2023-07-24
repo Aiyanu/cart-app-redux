@@ -1,14 +1,22 @@
-import { DECREASE, INCREASE, CLEAR_CART, REMOVE, GET_TOTALS, TOGGLE_AMOUNT } from "./actions";
-function reducer(state, action) {
+import cartItems from "../../cart-items";
+import { DECREASE, INCREASE, CLEAR_CART, REMOVE, GET_TOTALS, TOGGLE_AMOUNT } from "../actions/cartActions";
+
+const cartState = {
+    cart: cartItems,
+    total: 0,
+    amount: 4
+}
+
+function reducer(state=cartState, action) {
     if (action.type === DECREASE) {
-           let tempCart = state.cart.map(cartItem => {
-                if (cartItem.id === action.payload.id) {
-                    cartItem = {
-                        ...cartItem, amount: cartItem.amount - 1
-                    }
+        let tempCart = state.cart.map(cartItem => {
+            if (cartItem.id === action.payload.id) {
+                cartItem = {
+                    ...cartItem, amount: cartItem.amount - 1
                 }
-                return cartItem
-            })
+            }
+            return cartItem
+        })
         return {
             ...state, cart: tempCart
         }
@@ -38,19 +46,19 @@ function reducer(state, action) {
         let { total, amount } = state.cart.reduce(
             (cartTotal, cartItem) => {
                 const { price, amount } = cartItem;
-                const itemTotal = price * amount
+                // const itemTotal = price * amount
 
-                cartTotal.total += itemTotal
-                cartTotal.amount+=amount
+                cartTotal.total += cartItem.amount * price;
+                cartTotal.amount += amount
                 return cartTotal
             },
             {
                 total: 0,
                 amount: 0
             })
-        total = parseFloat(total.toFixed(2))
+        // total = parseFloat(total.toFixed(2))
         return {
-            ...state,total,amount
+            ...state, total, amount
         }
     }
     if (action.type === TOGGLE_AMOUNT) {
@@ -58,14 +66,15 @@ function reducer(state, action) {
             ...state, cart: state.cart.map((cartItem) => {
                 if (cartItem.id === action.payload.id) {
                     if (action.payload.toggle === "inc") {
-                        return cartItem = {...cartItem,amount:cartItem.amount+1}
+                        return cartItem = { ...cartItem, amount: cartItem.amount + 1 }
                     }
                     if (action.payload.toggle === "dec") {
-                        return cartItem = {...cartItem,amount:cartItem.amount-1}
+                        return cartItem = { ...cartItem, amount: cartItem.amount - 1 }
                     }
                 }
-            return cartItem
-        })}
+                return cartItem
+            })
+        }
     }
     return state
 }
